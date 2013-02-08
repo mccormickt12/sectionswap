@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> Title </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+  <h1> <%= title %> </h1>
+  <form method = "post">
+  	<% sections.ClassOffering.sections.forEach(function(sec) {if (sec.sectionFormat == "DIS") { 
+  			var a = sec.sectionNumber + " " + sec.sectionMeetings.startTime + " " + sec.sectionMeetings.endTime %>
+  	<input type="radio" name="section" value = <%- a %> >
+  		<%= a %>
+  	<br>
+  	<% }}) %>
+  	<input type = "submit" value = "Submit">
+  	</form>
+  </body>
+</html>
