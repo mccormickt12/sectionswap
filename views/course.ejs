@@ -7,12 +7,16 @@
   <body>
   <h1> <%= title %> </h1>
   <form method = "post">
-  	<% sections.ClassOffering.sections.forEach(function(sec) {if (sec.sectionFormat == "DIS") { 
-  			var a = sec.sectionNumber + " " + sec.sectionMeetings.startTime + " " + sec.sectionMeetings.endTime %>
+  	<% if (sections) { 
+        sections.ClassOffering.sections.forEach(function(sec) { 
+            if (sec.sectionFormat == "DIS") { 
+  			       var a = sec.sectionNumber + " " + sec.sectionMeetings.startTime
+                + " " + sec.sectionMeetings.endTime 
+    %>
   	<input type="radio" name="section" value = <%- a %> >
   		<%= a %>
   	<br>
-  	<% }}) %>
+  	<% }})} %>
   	<input type = "submit" value = "Submit">
   	</form>
   </body>

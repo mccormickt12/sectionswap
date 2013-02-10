@@ -85,7 +85,6 @@ app.get('/:dept/:num', function(req, res) {
     } else {
       res.render("course", { 
         title: "Current Section",
-
         course: course,
         sections : getJson(req.params.dept,  req.params.num)
       });
@@ -98,14 +97,12 @@ app.post('/:dept/:num', function(req, res) {
     curr : req.param('section'),
     desired : 0
   });
-  console.log('new request made');  // comment
   model.Class.findOne(
     { 
       dept: req.params.dept,
       num: req.params.num
      }, function(err, course) {
       course.all_requests.push(newReq);
-      console.log(newReq); // dkfljakdfjasdf
       course.save();
       req.method = 'get';
       res.redirect('/' + req.params.dept + '/' + 
@@ -141,7 +138,6 @@ app.post('/:dept/:num/desired', function(req, res) {
       item.desired = req.param('section');
       item.curr = item.curr.toString();
       course.all_requests.push(item);
-      console.log(item); // jkalsdjfasdf
       course.save();
       req.method = 'get';
       res.redirect('/' + req.params.dept + '/' + 
@@ -159,9 +155,10 @@ app.get('/:dept/:num/finished', function(req, res) {
       if (err) {
       res.json(404);
     } else {
-      var cyc = findCycle(course.all_requests[course.all_requests.length -1], 
-        course.all_requests[0],
-        course, []);
+      var all = course.all_requests
+      var newest = course.all_requests[course.all_requests.length - 1];
+      var first = all[0];
+      var cyc = findCycle(newest, null, course, []);
       res.render("finished", {
         cycle : cyc
       });
@@ -170,24 +167,40 @@ app.get('/:dept/:num/finished', function(req, res) {
 });
 
 
-function findCycle(orig, req, db, path) {
-   console.log("  ");
-      console.log("  ");
-      console.log(path);
-  if (orig == req) {
+function findCycle(orig, new_match, db, path) {
+  var all = db.all_requests;
+  var checked = new_match;
+  if (orig == new_match) {
+    console.log("EQUALS!!!");
+    path.push(new_match);
+    path.push("END");
     return path;
   }
-  path.push(req);
-  for (var a in db) {
-    if (a.desired == req.curr) {
-      var arr = findCycle(orig, a, db, path);
+  if (new_match == null) {
+      checked = orig;
+  } else {
+      checked = new_match;
+  }
+  if (path.indexOf("null") == 0) {
+    path = [];
+  }
+  for (var i = 0; i < all.length; i++) {
+    var req = all[i];
+    if (req.curr == checked.desired) {
+      var arr = findCycle(orig, req, db, path);
+      console.log(arr);
       if (arr.indexOf("null") == -1) {
-        continue;
-      } else {
+        console.log("no null");
+        path.push(checked);
+        path.push("END");
         return arr;
+      } else {
+        console.log("contains null end");
+        continue;
       }
     }
   }
+  console.log("found no matches");
   path.push('null');
   return path;
 }
