@@ -8,6 +8,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , model = require('./models.js')()
+  , findCycle = require('./findCycle.js')()
   , XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 
@@ -58,17 +59,24 @@ app.get('/all', function(req, res){
 });
 
 app.post('/', function(req, res){
-  var newClass = new model.Class({
-    dept : req.param('dept'),
-    num : req.param('num'),
-    all_requests : []
-  });
-  newClass.save(function(err, post) {
-      if (err) {
-        res.send(500);
-      } else {
-        post.toJSON();
-      }
+  model.Class.findOne({
+    dept :  req.param('dept'),
+    num : req.param('num')
+  }, function(err, course) {
+        if (!course) {
+            var newClass = new model.Class({
+                dept : req.param('dept'),
+                num : req.param('num'),
+                all_requests : []
+            });
+            newClass.save(function(err, post) {
+                if (err) {
+                  res.send(500);
+                } else {
+                  post.toJSON();
+                }
+            });
+        }
   });
    req.method = 'get';
    res.redirect('/');
@@ -76,8 +84,10 @@ app.post('/', function(req, res){
 
 app.get('/:dept/:num', function(req, res) {
   model.Class.findOne(
+  //find from the db where dept is equal to the dept from url
+  // and num is equal to num from url   
     { 
-      dept: req.params.dept,
+      dept: req.params.dept,     
       num: req.params.num
      }, function(err, course) {
       if (err) {
@@ -123,6 +133,7 @@ app.get('/:dept/:num/desired', function(req, res) {
         title: "Desired Sections",
         course: course,
         sections : getJson(req.params.dept,  req.params.num)
+        //getJson is defined below, uses section api
       });
     }
   });
@@ -157,8 +168,7 @@ app.get('/:dept/:num/finished', function(req, res) {
     } else {
       var all = course.all_requests
       var newest = course.all_requests[course.all_requests.length - 1];
-      var first = all[0];
-      var cyc = findCycle(newest, null, course, []);
+      var cyc = findCycle(newest, newest, [newest], course);
       res.render("finished", {
         cycle : cyc
       });
@@ -167,43 +177,6 @@ app.get('/:dept/:num/finished', function(req, res) {
 });
 
 
-function findCycle(orig, new_match, db, path) {
-  var all = db.all_requests;
-  var checked = new_match;
-  if (orig == new_match) {
-    console.log("EQUALS!!!");
-    path.push(new_match);
-    path.push("END");
-    return path;
-  }
-  if (new_match == null) {
-      checked = orig;
-  } else {
-      checked = new_match;
-  }
-  if (path.indexOf("null") == 0) {
-    path = [];
-  }
-  for (var i = 0; i < all.length; i++) {
-    var req = all[i];
-    if (req.curr == checked.desired) {
-      var arr = findCycle(orig, req, db, path);
-      console.log(arr);
-      if (arr.indexOf("null") == -1) {
-        console.log("no null");
-        path.push(checked);
-        path.push("END");
-        return arr;
-      } else {
-        console.log("contains null end");
-        continue;
-      }
-    }
-  }
-  console.log("found no matches");
-  path.push('null');
-  return path;
-}
 
 
 function getJson(dept, num) {
