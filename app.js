@@ -36,13 +36,13 @@ app.configure('development', function(){
 });
 
 app.get('/', function(req, res) {
-  model.Class.find({}, function(err, course) {
+  model.Class.find(function(err, course) {
     if (err) {
       res.json(404);
     } else {
       res.render("index", { 
         courses: course,
-        title: "This is title"
+        title: "SectionSwap"
       });
     }
   });
@@ -177,19 +177,21 @@ app.get('/:dept/:num/finished', function(req, res) {
 });
 
 
-
-
 function getJson(dept, num) {
-  var theUrl = "https://apis-dev.berkeley.edu/cxf/asws/classoffering/"
+  var theUrl = "https://apis-qa.berkeley.edu/cxf/asws/classoffering/"
     + dept + "." +  num  + 
     ".SPRING.2013?_type=json&app_id=5b0e1bb8&app_key=53775bde1744f221dcf194a55b49e640";
   var xmlHttp = null;
   xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", theUrl, false );
   xmlHttp.send( null );
-  return JSON.parse(xmlHttp.responseText || "null");
+  return JSON.parse(xmlHttp.responseText);
 }
+
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+

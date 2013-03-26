@@ -1,22 +1,12 @@
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <title> <%= title %> </title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-  	<%  courses.forEach(function(course) { %>
-    <%- link_to(course.dept + course.num, course.dept + '/' + course.num) %> <br>
-    <% }) %>
-    <br><br>
-    <form method = "post">
-    	Deparment Name: <input type = 'text' name = "dept">
-    	<br>
-    	Course Number: <input type = 'text' name = "num">
-    	<br>
-    	<input type = "submit" value = "Submit">
-    	<br>
-    </form>
-  </body>
-</html>
+<%  courses.forEach(function(course) { %>
+  <%- link_to(course.dept + course.num, course.dept + '/' + course.num) %> <br>
+<% }) %>
+<br><br>
+<form method = "post">
+  Deparment Name: <input type = 'text' name = "dept">
+  <br>
+  Course Number: <input type = 'text' name = "num">
+  <br>
+  <input type = "submit" value = "Submit">
+  <br>
+</form>
